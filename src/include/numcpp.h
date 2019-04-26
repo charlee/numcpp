@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <memory>
+#include <climits>
 
 using std::shared_ptr;
 using std::string;
@@ -14,6 +15,11 @@ using std::vector;
 
 namespace numcpp
 {
+
+template<typename T>
+constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
+    return v < lo ? lo : v > hi ? hi : v;
+}
 
 class Shape2D
 {
@@ -40,7 +46,7 @@ class Range
     long step;
 
     // TODO: step cannot be 0
-    Range(long start = 0, long end = -1, long step = 1) : start(start), end(end), step(step){};
+    Range(long start = 0, long end = LONG_MAX, long step = 1) : start(start), end(end), step(step){};
 
     vector<long> seq(long size)
     {
@@ -48,12 +54,17 @@ class Range
         long end = this->end;
         long step = this->step;
 
-        if (start < 0)
+        // Handle negative index
+        if (start < 0L)
             start += size;
-        if (end < 0)
+        if (end < 0L)
             end += size;
 
-        long count = (end - start + 1) / step;
+        // Handle out of range
+        start = clamp(start, 0L, size);
+        end = clamp(end, 0L, size);
+
+        long count = (end - start) / step;
         vector<long> r(count, 0);
 
         r[0] = start;
