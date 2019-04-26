@@ -1,13 +1,13 @@
 #ifndef __NUMCPP_H__
 #define __NUMCPP_H__
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <memory>
 
 using std::shared_ptr;
-using std::size_t;
 using std::string;
 using std::unique_ptr;
 using std::vector;
@@ -18,43 +18,51 @@ namespace numcpp
 class Shape2D
 {
   public:
-    size_t d0;
-    size_t d1;
-    Shape2D(size_t d0, size_t d1) : d0(d0), d1(d1){};
+    long d0;
+    long d1;
+    Shape2D(long d0, long d1) : d0(d0), d1(d1){};
 };
 
 class Shape3D
 {
   public:
-    size_t d0;
-    size_t d1;
-    size_t d2;
-    Shape3D(size_t d0, size_t d1, size_t d2) : d0(d0), d1(d1), d2(d2){};
+    long d0;
+    long d1;
+    long d2;
+    Shape3D(long d0, long d1, long d2) : d0(d0), d1(d1), d2(d2){};
 };
 
 class Range
 {
   public:
-    size_t start;
-    size_t end;
-    size_t step;
+    long start;
+    long end;
+    long step;
 
     // TODO: step cannot be 0
-    Range(size_t start = 0, size_t end = -1, size_t step = 1) : start(start), end(end), step(step){};
+    Range(long start = 0, long end = -1, long step = 1) : start(start), end(end), step(step){};
 
-    vector<size_t> series(size_t size)
+    vector<long> seq(long size)
     {
-        size_t start = this->start;
-        size_t end = this->end;
+        long start = this->start;
+        long end = this->end;
+        long step = this->step;
 
-        if (start < 0) start += size;
-        if (end < 0) end += size;
+        if (start < 0)
+            start += size;
+        if (end < 0)
+            end += size;
 
-        size_t count = (end - start + 1) / step;
+        long count = (end - start + 1) / step;
+        vector<long> r(count, 0);
 
-        if (step > 0)
+        r[0] = start;
+        for (long i = 1; i < count; i++)
         {
+            r[i] = r[i - 1] + step;
         }
+
+        return r;
     }
 };
 
@@ -62,8 +70,8 @@ template <typename T>
 class Vec
 {
   private:
-    size_t shape;
-    size_t size;
+    long shape;
+    long size;
     shared_ptr<vector<T>> pData;
     unique_ptr<vector<T>> pIndex;
 
@@ -97,17 +105,17 @@ class Vec
         size = v.size;
     }
 
-    size_t getSize()
+    long getSize()
     {
         return size;
     }
 
-    size_t getShape()
+    long getShape()
     {
         return shape;
     }
 
-    T &operator[](size_t n)
+    T &operator[](long n)
     {
         return (*pData)[n];
     }
@@ -126,7 +134,7 @@ class Vec
     {
         std::stringstream s;
         s << "Vec(" << size << ")[";
-        for (size_t i = 0; i < pData->size(); i++)
+        for (long i = 0; i < pData->size(); i++)
         {
             if (i != 0)
             {
