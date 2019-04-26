@@ -6,6 +6,7 @@
 #include <sstream>
 #include <memory>
 
+using std::shared_ptr;
 using std::size_t;
 using std::string;
 using std::unique_ptr;
@@ -38,7 +39,23 @@ class Range
     size_t end;
     size_t step;
 
+    // TODO: step cannot be 0
     Range(size_t start = 0, size_t end = -1, size_t step = 1) : start(start), end(end), step(step){};
+
+    vector<size_t> series(size_t size)
+    {
+        size_t start = this->start;
+        size_t end = this->end;
+
+        if (start < 0) start += size;
+        if (end < 0) end += size;
+
+        size_t count = (end - start + 1) / step;
+
+        if (step > 0)
+        {
+        }
+    }
 };
 
 template <typename T>
@@ -47,7 +64,8 @@ class Vec
   private:
     size_t shape;
     size_t size;
-    unique_ptr<vector<T>> pData;
+    shared_ptr<vector<T>> pData;
+    unique_ptr<vector<T>> pIndex;
 
   public:
     /**
@@ -55,7 +73,7 @@ class Vec
      */
     Vec(int shape) : shape(shape)
     {
-        pData = unique_ptr<vector<T>>(new vector<T>(shape));
+        pData = shared_ptr<vector<T>>(new vector<T>(shape));
         size = shape;
     }
 
@@ -64,13 +82,44 @@ class Vec
      */
     Vec(vector<T> data)
     {
-        pData = unique_ptr<vector<T>>(new vector<T>(data));
+        pData = shared_ptr<vector<T>>(new vector<T>(data));
         shape = data.size();
         size = shape;
     }
 
-    T& operator[](size_t n) {
+    /**
+     * Copy constructor.
+     */
+    Vec(const Vec<T> &v)
+    {
+        pData = v.pData;
+        shape = v.shape;
+        size = v.size;
+    }
+
+    size_t getSize()
+    {
+        return size;
+    }
+
+    size_t getShape()
+    {
+        return shape;
+    }
+
+    T &operator[](size_t n)
+    {
         return (*pData)[n];
+    }
+
+    /**
+     * Slice.
+     */
+    Vec<T> operator()(Range range)
+    {
+        Vec<T> r(*this);
+        // TODO
+        return r;
     }
 
     string as_string()
@@ -97,7 +146,7 @@ class Mat2D
 {
   private:
     Shape2D shape;
-    unique_ptr<vector<T>> pData;
+    shared_ptr<vector<T>> pData;
 };
 
 // template <class T>
