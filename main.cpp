@@ -24,4 +24,8 @@ int main() {
 
     Vec<float> E = D({1});
     std::cout << E.as_string() << std::endl;
+
+    Vec<float> F = D + 10.0f;
+    std::cout << F.as_string() << std::endl;
+
 }

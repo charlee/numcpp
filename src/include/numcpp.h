@@ -109,15 +109,17 @@ class Vec
         size = shape;
     }
 
-    // /**
-    //  * Copy constructor.
-    //  */
-    // Vec(const Vec<T> &v)
-    // {
-    //     pData = v.pData;
-    //     shape = v.shape;
-    //     size = v.size;
-    // }
+    /**
+     * Copy constructor.
+     * This constructor will literally copy the data from v
+     * (with v's index).
+     */
+    Vec(const Vec<T> &v): Vec(v.getShape())
+    {
+        for (long i = 0; i < getShape(); i++) {
+            (*this)[i] = v[i];
+        }
+    }
 
     long getSize() const
     {
@@ -159,13 +161,51 @@ class Vec
         return r;
     }
 
-    Vec<T> operator-() const {
+    Vec<T> operator-() const
+    {
         Vec<T> r(*this);
-        for (long i = 0; i < r.getShape(); i++) {
+        for (long i = 0; i < r.getShape(); i++)
+        {
             r[i] = -r[i];
         }
 
         return r;
+    }
+
+    Vec<T> &operator+=(const Vec<T> &rhs)
+    {
+        if (getShape() != rhs.getShape())
+        {
+            throw NUMCPP_SHAPE_MISMATCH;
+        }
+
+        for (long i = 0; i < getShape(); i++)
+        {
+            (*this)[i] += rhs[i];
+        }
+
+        return *this;
+    }
+
+    Vec<T> &operator+=(const T rhs) {
+        for (long i = 0; i < getShape(); i++)
+        {
+            (*this)[i] += rhs;
+        }
+
+        return *this;
+    }
+
+    friend Vec<T> operator+(Vec<T> lhs, const Vec<T> &rhs)
+    {
+        lhs += rhs;
+        return lhs;
+    }
+
+    friend Vec<T> operator+(Vec<T> lhs, const T rhs)
+    {
+        lhs += rhs;
+        return lhs;
     }
 
     string as_string() const
@@ -188,40 +228,25 @@ class Vec
     }
 };
 
-
 template <typename T>
-inline bool operator==(const Vec<T>& lhs, const Vec<T>& rhs)
+inline bool operator==(const Vec<T> &lhs, const Vec<T> &rhs)
 {
 
-    if (lhs.getShape() != rhs.getShape()) {
+    if (lhs.getShape() != rhs.getShape())
+    {
         return false;
     }
 
-    for (long i = 0; i < lhs.getShape(); i++) {
-        if (lhs[i] != rhs[i]) {
+    for (long i = 0; i < lhs.getShape(); i++)
+    {
+        if (lhs[i] != rhs[i])
+        {
             return false;
         }
     }
 
     return true;
 }
-
-template <typename T>
-inline Vec<T> operator+(const Vec<T>& lhs, const Vec<T>& rhs)
-{
-    if (lhs.getShape() != rhs.getShape()) {
-        throw NUMCPP_SHAPE_MISMATCH;
-    }
-
-    Vec<T> r(lhs);
-
-    for (long i = 0; i < lhs.getShape(); i++) {
-        r[i] += rhs[i];
-    }
-
-    return r;
-}
-
 
 template <typename T>
 Vec<T> dot(Vec<T> a, Vec<T> b)
