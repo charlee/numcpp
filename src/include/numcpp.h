@@ -161,6 +161,9 @@ class Vec
         return r;
     }
 
+    /**
+     * Find the opposite.
+     */
     Vec<T> operator-() const
     {
         Vec<T> r(*this);
@@ -172,6 +175,10 @@ class Vec
         return r;
     }
 
+    /**
+     * Override += operator
+     * Implement basic Vec + Vec
+     */
     Vec<T> &operator+=(const Vec<T> &rhs)
     {
         if (getShape() != rhs.getShape())
@@ -187,6 +194,9 @@ class Vec
         return *this;
     }
 
+    /**
+     * Vec + T
+     */
     Vec<T> &operator+=(const T rhs) {
         for (long i = 0; i < getShape(); i++)
         {
@@ -196,38 +206,71 @@ class Vec
         return *this;
     }
 
+    /**
+     * Override -= operator
+     * Implement Vec - Vec
+     */
     Vec<T> &operator-=(const Vec<T> &rhs) {
         *this += (-rhs);
         return *this;
     }
 
+    /**
+     * Vec - T
+     */
     Vec<T> &operator-=(const T rhs) {
         *this += (-rhs);
         return *this;
     }
 
+    /**
+     * Vec + Vec
+     */
     friend Vec<T> operator+(Vec<T> lhs, const Vec<T> &rhs)
     {
         lhs += rhs;
         return lhs;
     }
 
+    /**
+     * Vec + T
+     */
     friend Vec<T> operator+(Vec<T> lhs, const T rhs)
     {
         lhs += rhs;
         return lhs;
     }
 
+    /**
+     * T + Vec
+     */
+    friend Vec<T> operator+(const T lhs, Vec<T> rhs) {
+        return rhs + lhs;
+    }
+
+    /**
+     * Vec - Vec
+     */
     friend Vec<T> operator-(Vec<T> lhs, const Vec<T> &rhs)
     {
         lhs -= rhs;
         return lhs;
     }
 
+    /**
+     * Vec - T
+     */
     friend Vec<T> operator-(Vec<T> lhs, const T rhs)
     {
         lhs -= rhs;
         return lhs;
+    }
+
+    /**
+     * T - Vec
+     */
+    friend Vec<T> operator-(const T lhs, Vec<T> rhs){
+        return -rhs + lhs;
     }
 
     string as_string() const

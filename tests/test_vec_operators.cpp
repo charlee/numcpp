@@ -38,6 +38,9 @@ TEST_CASE("Should compute addition correctly", "[Vec_addition]")
 
     Vec<float> r3({12.0, 14.0});
     REQUIRE(b({0, 2}) + 10.0 == r3);
+
+    Vec<float> r4({2.0, 4.0, 6.0});
+    REQUIRE(1 + a == r4);
 }
 
 TEST_CASE("Should compute subtraction correctly", "[Vec_addition]")
@@ -51,4 +54,10 @@ TEST_CASE("Should compute subtraction correctly", "[Vec_addition]")
 
     Vec<float> r2({0.5, 2.5, 4.5});
     REQUIRE(a - 0.5 == r2);
+
+    Vec<float> r3({-8.0, -6.0});
+    REQUIRE(b({0, 2}) - 10.0 == r3);
+
+    Vec<float> r4({-1.0, -3.0, -5.0});
+    REQUIRE(0.0 - a == r4);
 }
