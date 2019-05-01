@@ -16,8 +16,9 @@ using std::vector;
 namespace numcpp
 {
 
-template<typename T>
-constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
+template <typename T>
+constexpr const T &clamp(const T &v, const T &lo, const T &hi)
+{
     return v < lo ? lo : v > hi ? hi : v;
 }
 
@@ -84,51 +85,51 @@ class Vec
     long shape;
     long size;
     shared_ptr<vector<T>> pData;
-    unique_ptr<vector<T>> pIndex;
+    bool useIndex;
+    vector<long> index;
 
   public:
     /**
      * Init a Vec with shape
      */
-    Vec(int shape) : shape(shape)
+    Vec(int shape) : shape(shape), size(shape), useIndex(false)
     {
         pData = shared_ptr<vector<T>>(new vector<T>(shape));
-        size = shape;
     }
 
     /**
      * Init a Vec with data (std::vector<T>)
      */
-    Vec(vector<T> data)
+    Vec(vector<T> data) : useIndex(false)
     {
         pData = shared_ptr<vector<T>>(new vector<T>(data));
         shape = data.size();
         size = shape;
     }
 
-    /**
-     * Copy constructor.
-     */
-    Vec(const Vec<T> &v)
-    {
-        pData = v.pData;
-        shape = v.shape;
-        size = v.size;
-    }
+    // /**
+    //  * Copy constructor.
+    //  */
+    // Vec(const Vec<T> &v)
+    // {
+    //     pData = v.pData;
+    //     shape = v.shape;
+    //     size = v.size;
+    // }
 
     long getSize()
     {
-        return size;
+        return useIndex ? index.size() : size;
     }
 
     long getShape()
     {
-        return shape;
+        return useIndex ? index.size() : shape;
     }
 
     T &operator[](long n)
     {
-        return (*pData)[n];
+        return useIndex ? (*pData)[index[n]] : (*pData)[n];
     }
 
     /**
@@ -137,21 +138,33 @@ class Vec
     Vec<T> operator()(Range range)
     {
         Vec<T> r(*this);
-        // TODO
+        vector<long> index = range.seq(getSize());
+        if (useIndex) {
+            // combine two indicies
+            vector<long> p(index.size());
+            for (long i = 0; i < index.size(); i++) {
+                p[i] = r.index[index[i]];
+            }
+            r.index = p;
+        } else {
+            r.index = index;
+        }
+        r.useIndex = true;
         return r;
     }
 
     string as_string()
     {
         std::stringstream s;
+        const size_t size = getSize();
         s << "Vec(" << size << ")[";
-        for (long i = 0; i < pData->size(); i++)
+        for (long i = 0; i < size; i++)
         {
             if (i != 0)
             {
                 s << ", ";
             }
-            s << (*pData)[i];
+            s << (*this)[i];
         }
 
         s << "]";
