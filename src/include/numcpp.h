@@ -13,6 +13,8 @@ using std::string;
 using std::unique_ptr;
 using std::vector;
 
+#define NUMCPP_SHAPE_MISMATCH -1
+
 namespace numcpp
 {
 
@@ -117,17 +119,17 @@ class Vec
     //     size = v.size;
     // }
 
-    long getSize()
+    long getSize() const
     {
         return useIndex ? index.size() : size;
     }
 
-    long getShape()
+    long getShape() const
     {
         return useIndex ? index.size() : shape;
     }
 
-    T &operator[](long n)
+    T &operator[](long n) const
     {
         return useIndex ? (*pData)[index[n]] : (*pData)[n];
     }
@@ -135,25 +137,38 @@ class Vec
     /**
      * Slice.
      */
-    Vec<T> operator()(Range range)
+    Vec<T> operator()(Range range) const
     {
         Vec<T> r(*this);
         vector<long> index = range.seq(getSize());
-        if (useIndex) {
+        if (useIndex)
+        {
             // combine two indicies
             vector<long> p(index.size());
-            for (long i = 0; i < index.size(); i++) {
+            for (long i = 0; i < index.size(); i++)
+            {
                 p[i] = r.index[index[i]];
             }
             r.index = p;
-        } else {
+        }
+        else
+        {
             r.index = index;
         }
         r.useIndex = true;
         return r;
     }
 
-    string as_string()
+    Vec<T> operator-() const {
+        Vec<T> r(*this);
+        for (long i = 0; i < r.getShape(); i++) {
+            r[i] = -r[i];
+        }
+
+        return r;
+    }
+
+    string as_string() const
     {
         std::stringstream s;
         const size_t size = getSize();
@@ -172,6 +187,60 @@ class Vec
         return s.str();
     }
 };
+
+
+template <typename T>
+inline bool operator==(const Vec<T>& lhs, const Vec<T>& rhs)
+{
+
+    if (lhs.getShape() != rhs.getShape()) {
+        return false;
+    }
+
+    for (long i = 0; i < lhs.getShape(); i++) {
+        if (lhs[i] != rhs[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template <typename T>
+inline Vec<T> operator+(const Vec<T>& lhs, const Vec<T>& rhs)
+{
+    if (lhs.getShape() != rhs.getShape()) {
+        throw NUMCPP_SHAPE_MISMATCH;
+    }
+
+    Vec<T> r(lhs);
+
+    for (long i = 0; i < lhs.getShape(); i++) {
+        r[i] += rhs[i];
+    }
+
+    return r;
+}
+
+
+template <typename T>
+Vec<T> dot(Vec<T> a, Vec<T> b)
+{
+    // Check if shape matches
+    if (a.getShape() != b.getShape())
+    {
+        throw NUMCPP_SHAPE_MISMATCH;
+    }
+
+    long shape = a.getShape();
+    Vec<T> r(shape);
+    for (long i = 0; i < shape; i++)
+    {
+        r[i] = a[i] * b[i];
+    }
+
+    return r;
+}
 
 template <typename T>
 class Mat2D
