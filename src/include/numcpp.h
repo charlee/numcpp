@@ -196,6 +196,16 @@ class Vec
         return *this;
     }
 
+    Vec<T> &operator-=(const Vec<T> &rhs) {
+        *this += (-rhs);
+        return *this;
+    }
+
+    Vec<T> &operator-=(const T rhs) {
+        *this += (-rhs);
+        return *this;
+    }
+
     friend Vec<T> operator+(Vec<T> lhs, const Vec<T> &rhs)
     {
         lhs += rhs;
@@ -205,6 +215,18 @@ class Vec
     friend Vec<T> operator+(Vec<T> lhs, const T rhs)
     {
         lhs += rhs;
+        return lhs;
+    }
+
+    friend Vec<T> operator-(Vec<T> lhs, const Vec<T> &rhs)
+    {
+        lhs -= rhs;
+        return lhs;
+    }
+
+    friend Vec<T> operator-(Vec<T> lhs, const T rhs)
+    {
+        lhs -= rhs;
         return lhs;
     }
 
