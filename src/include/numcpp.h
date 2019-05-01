@@ -14,6 +14,7 @@ using std::unique_ptr;
 using std::vector;
 
 #define NUMCPP_SHAPE_MISMATCH -1
+#define NUMCPP_DIVISION_BY_ZERO -2
 
 namespace numcpp
 {
@@ -114,9 +115,10 @@ class Vec
      * This constructor will literally copy the data from v
      * (with v's index).
      */
-    Vec(const Vec<T> &v): Vec(v.getShape())
+    Vec(const Vec<T> &v) : Vec(v.getShape())
     {
-        for (long i = 0; i < getShape(); i++) {
+        for (long i = 0; i < getShape(); i++)
+        {
             (*this)[i] = v[i];
         }
     }
@@ -197,7 +199,8 @@ class Vec
     /**
      * Vec + T
      */
-    Vec<T> &operator+=(const T rhs) {
+    Vec<T> &operator+=(const T rhs)
+    {
         for (long i = 0; i < getShape(); i++)
         {
             (*this)[i] += rhs;
@@ -210,7 +213,8 @@ class Vec
      * Override -= operator
      * Implement Vec - Vec
      */
-    Vec<T> &operator-=(const Vec<T> &rhs) {
+    Vec<T> &operator-=(const Vec<T> &rhs)
+    {
         *this += (-rhs);
         return *this;
     }
@@ -218,8 +222,83 @@ class Vec
     /**
      * Vec - T
      */
-    Vec<T> &operator-=(const T rhs) {
+    Vec<T> &operator-=(const T rhs)
+    {
         *this += (-rhs);
+        return *this;
+    }
+
+    /**
+     * Vec * Vec
+     * Element-wise multiplication.
+     */
+    Vec<T> &operator*=(const Vec<T> &rhs)
+    {
+        if (getShape() != rhs.getShape())
+        {
+            throw NUMCPP_SHAPE_MISMATCH;
+        }
+
+        for (long i = 0; i < getShape(); i++)
+        {
+            (*this)[i] *= rhs[i];
+        }
+
+        return *this;
+    }
+
+    /**
+     * Vec * T
+     */
+    Vec<T> &operator*=(const T rhs)
+    {
+        for (long i = 0; i < getShape(); i++)
+        {
+            (*this)[i] *= rhs;
+        }
+
+        return *this;
+    }
+
+    /**
+     * Vec / Vec
+     * Element-wise division.
+     */
+    Vec<T> &operator/=(const Vec<T> &rhs)
+    {
+        if (getShape() != rhs.getShape())
+        {
+            throw NUMCPP_SHAPE_MISMATCH;
+        }
+
+        for (long i = 0; i < getShape(); i++)
+        {
+            if (rhs[i] == 0)
+            {
+                throw NUMCPP_DIVISION_BY_ZERO;
+            }
+
+            (*this)[i] /= rhs[i];
+        }
+
+        return *this;
+    }
+
+    /**
+     * Vec * T
+     */
+    Vec<T> &operator/=(const T rhs)
+    {
+        if (rhs == 0)
+        {
+            throw NUMCPP_DIVISION_BY_ZERO;
+        }
+
+        for (long i = 0; i < getShape(); i++)
+        {
+            (*this)[i] /= rhs;
+        }
+
         return *this;
     }
 
@@ -244,7 +323,8 @@ class Vec
     /**
      * T + Vec
      */
-    friend Vec<T> operator+(const T lhs, Vec<T> rhs) {
+    friend Vec<T> operator+(const T lhs, Vec<T> rhs)
+    {
         return rhs + lhs;
     }
 
@@ -269,8 +349,54 @@ class Vec
     /**
      * T - Vec
      */
-    friend Vec<T> operator-(const T lhs, Vec<T> rhs){
+    friend Vec<T> operator-(const T lhs, Vec<T> rhs)
+    {
         return -rhs + lhs;
+    }
+
+    friend Vec<T> operator*(Vec<T> lhs, const Vec<T> &rhs)
+    {
+        lhs *= rhs;
+        return lhs;
+    }
+
+    friend Vec<T> operator*(Vec<T> lhs, const T rhs)
+    {
+        lhs *= rhs;
+        return lhs;
+    }
+
+    friend Vec<T> operator*(const T lhs, Vec<T> rhs)
+    {
+        return rhs * lhs;
+    }
+
+    friend Vec<T> operator/(Vec<T> lhs, const Vec<T> &rhs)
+    {
+        lhs /= rhs;
+        return lhs;
+    }
+
+    friend Vec<T> operator/(Vec<T> lhs, const T rhs)
+    {
+        lhs /= rhs;
+        return lhs;
+    }
+
+    friend Vec<T> operator/(const T lhs, Vec<T> rhs)
+    {
+        Vec<T> r(rhs.getShape());
+        for (long i = 0; i < rhs.getShape(); i++)
+        {
+            if (rhs[i] == 0)
+            {
+                throw NUMCPP_DIVISION_BY_ZERO;
+            }
+
+            r[i] = lhs / rhs[i];
+        }
+
+        return r;
     }
 
     string as_string() const
